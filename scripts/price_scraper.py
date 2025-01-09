@@ -18,7 +18,7 @@ def scrape_price():
         }
 
         data = {
-            '_NAV_Laporan_Widget_Portlet_INSTANCE_8J6RSFs2GFon_daysPeriod': '10',
+            '_NAV_Laporan_Widget_Portlet_INSTANCE_8J6RSFs2GFon_daysPeriod': '1',
             '_NAV_Laporan_Widget_Portlet_INSTANCE_8J6RSFs2GFon_startDate': '',
             '_NAV_Laporan_Widget_Portlet_INSTANCE_8J6RSFs2GFon_endDate': '',
             '_NAV_Laporan_Widget_Portlet_INSTANCE_8J6RSFs2GFon_fundCode': 'Mandiri Attractive Equity Money Rupiah'
@@ -38,8 +38,16 @@ def scrape_price():
         response.raise_for_status()
 
         data_list = json.loads(response.text)[0]
+        
+        # Sort by date to get the most recent price
+        sorted_data = sorted(
+            data_list,
+            key=lambda x: datetime.strptime(x['navDate'], '%Y-%m-%d %H:%M:%S.%f'),
+            reverse=True
+        )
+        
         latest_price = next(
-            (item for item in data_list if item['fundCode'] == 'ATRP'),
+            (item for item in sorted_data if item['fundCode'] == 'ATRP'),
             None
         )
 
