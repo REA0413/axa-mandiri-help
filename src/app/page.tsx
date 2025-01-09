@@ -9,7 +9,7 @@ export default function Home() {
   const [email, setEmail] = useState("");
   const [investmentAmount, setInvestmentAmount] = useState("");
   const [buyingPrice, setBuyingPrice] = useState("");
-  const [subscribeStatus, setSubscribeStatus] = useState<string>('');
+
 
   useEffect(() => {
     const fetchPrice = async () => {
@@ -29,7 +29,6 @@ export default function Home() {
 
   const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubscribeStatus('submitting');
     
     try {
       const response = await fetch('/api/subscribe', {
@@ -46,10 +45,8 @@ export default function Home() {
         throw new Error(data.error);
       }
 
-      setSubscribeStatus('success');
       setEmail('');
     } catch (error) {
-      setSubscribeStatus('error');
       console.error('Subscription error:', error);
     }
   };
@@ -87,7 +84,7 @@ export default function Home() {
 
         {/* Yesterday's Sell Price */}
         <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-lg font-semibold text-gray-700 mb-2">Yesterday's Sell Price</h2>
+          <h2 className="text-lg font-semibold text-gray-700 mb-2">Yesterday&apos;s Sell Price</h2>
           <p className="text-gray-600 mb-2">
             If you sell your investment to AXA-Mandiri yesterday, this is the price per unit you will get.
           </p>
@@ -170,7 +167,7 @@ export default function Home() {
                 </div>
               </div>
               <div className="text-xs text-gray-500 mt-4">
-                <em>This summary is generated based on yesterday's selling price</em>
+                <em>This summary is generated based on yesterday&apos;s selling price</em>
               </div>
             </>
           ) : (

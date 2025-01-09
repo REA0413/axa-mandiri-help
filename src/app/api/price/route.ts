@@ -11,6 +11,7 @@ export async function GET() {
     
     return NextResponse.json(data);
   } catch (error) {
+    console.error(error); // Log the error for debugging
     return NextResponse.json({
       price: 131.9938,
       timestamp: new Date().toISOString(),
