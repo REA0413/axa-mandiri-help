@@ -14,6 +14,14 @@
   }
 }
 
+@font-face {
+  font-family: 'Johnston100';
+  src: url('./fonts/Johnston100\ W03\ Light.woff') format('woff2'),
+       url('./fonts/Johnston100\ W03\ Light.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
 body {
   color: var(--foreground);
   background: var(--background);
