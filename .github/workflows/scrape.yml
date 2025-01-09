@@ -2,7 +2,7 @@ name: Daily Price Scraper
 
 on:
   schedule:
-    - cron: '0 3 * * *'  # 10 AM GMT+7
+    - cron: '0 8 * * *'  # 3 PM GMT+7
   workflow_dispatch:  # Allows manual trigger
 
 jobs:
