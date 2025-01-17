@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { FiMail } from "react-icons/fi";
 import { FaXTwitter } from "react-icons/fa6";
 import Image from 'next/image';
-import { translations } from '@/config/languages';
+import { translations, TranslationType } from '@/config/languages';
 
 export default function Home() {
   const [language, setLanguage] = useState<'en' | 'id'>('en');
@@ -13,7 +13,9 @@ export default function Home() {
   const [investmentAmount, setInvestmentAmount] = useState("");
   const [buyingPrice, setBuyingPrice] = useState("");
 
-  const t = (key: keyof typeof translations.en) => translations[language][key];
+  const t = (key: keyof TranslationType): string => translations[language][key] as string;
+
+  const tParts = (key: 'intro1Parts') => translations[language][key];
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString(language === 'en' ? 'en-US' : 'id-ID', {
@@ -104,9 +106,9 @@ export default function Home() {
             <div className="w-full md:w-2/3">
               <h1 className="text-2xl font-bold text-gray-900 mb-4">{t('welcome')}</h1>
               <p className="text-gray-600 mb-4">
-                {t('intro1').prefix}
-                <strong>{t('intro1').highlight}</strong>
-                {t('intro1').suffix}
+                {tParts('intro1Parts').prefix}
+                <strong>{tParts('intro1Parts').highlight}</strong>
+                {tParts('intro1Parts').suffix}
               </p>
               <p className="text-gray-600 mb-4">{t('intro2')}</p>
               <p className="text-gray-600">{t('intro3')}</p>
