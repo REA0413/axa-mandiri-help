@@ -16,6 +16,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "AXA-Mandiri-Help",
   description: "I know you were trapped into a bad investment, at least I can help you to reduce your loss",
+  verification: {
+    google: "A1RAIcX1hfNGRn-aqHOXd17EQnjMvEGd1GXGBlEZhas",
+  },
 };
 
 export default function RootLayout({
