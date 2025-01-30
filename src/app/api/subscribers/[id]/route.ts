@@ -3,6 +3,7 @@ import { db } from '@/db/config';
 import { subscribers } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 
+// Validate and parse the ID
 function validateId(id: string) {
   const parsedId = parseInt(id, 10);
   if (isNaN(parsedId) || parsedId <= 0) {
@@ -13,10 +14,10 @@ function validateId(id: string) {
 
 export async function PUT(
   request: NextRequest,
-  context: { params: { id: string } } // ✅ Fix: Using `context` explicitly
+  { params }: { params: Record<string, string> } // ✅ Use Record<string, string> for compatibility
 ) {
   try {
-    const id = validateId(context.params.id);
+    const id = validateId(params.id);
     const body = await request.json();
 
     if (!body.email || typeof body.email !== 'string') {
@@ -36,10 +37,10 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  context: { params: { id: string } } // ✅ Fix: Using `context` explicitly
+  { params }: { params: Record<string, string> } // ✅ Use Record<string, string> for compatibility
 ) {
   try {
-    const id = validateId(context.params.id);
+    const id = validateId(params.id);
 
     await db.delete(subscribers).where(eq(subscribers.id, id));
 
