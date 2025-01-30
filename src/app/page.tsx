@@ -4,6 +4,7 @@ import { FiMail } from "react-icons/fi";
 import { FaXTwitter } from "react-icons/fa6";
 import Image from 'next/image';
 import { translations, TranslationType } from '@/config/languages';
+import toast from 'react-hot-toast';
 
 export default function Home() {
   const [language, setLanguage] = useState<'en' | 'id'>('en');
@@ -56,11 +57,19 @@ export default function Home() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error);
+        throw new Error(data.error || 'Failed to subscribe');
       }
 
+      toast.success('Successfully subscribed! You will receive daily price updates.');
       setEmail('');
-    } catch (error) {
+    } catch (error: any) {
+      if (error.message === 'Email already subscribed') {
+        toast.error('This email is already subscribed');
+      } else if (error.message.includes('invalid')) {
+        toast.error('Please enter a valid email address');
+      } else {
+        toast.error('Failed to subscribe. Please try again later.');
+      }
       console.error('Subscription error:', error);
     }
   };
