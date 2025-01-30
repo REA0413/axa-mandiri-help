@@ -4,9 +4,9 @@ import { subscribers } from "@/db/schema";
 import { eq } from "drizzle-orm";
 
 // Next.js 15+ expects RouteContext to explicitly match this structure
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const id = parseInt(params.id, 10);
+    const id = parseInt((await params).id, 10);
 
     if (isNaN(id) || id <= 0) {
       return NextResponse.json({ error: "Invalid subscriber ID" }, { status: 400 });
