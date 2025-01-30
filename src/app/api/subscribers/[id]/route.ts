@@ -3,15 +3,9 @@ import { db } from '@/db/config';
 import { subscribers } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 
-type RouteContext = {
-  params: {
-    id: string;
-  };
-};
-
 export async function PUT(
   request: NextRequest,
-  { params }: RouteContext
+  { params }: { params: { id: string } }
 ) {
   try {
     const { email } = await request.json();
@@ -27,7 +21,7 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: RouteContext
+  { params }: { params: { id: string } }
 ) {
   try {
     await db.delete(subscribers)
