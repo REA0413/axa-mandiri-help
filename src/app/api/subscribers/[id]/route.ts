@@ -26,9 +26,9 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
   }
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const id = parseInt(params.id, 10);
+    const id = parseInt((await params).id, 10);
 
     if (isNaN(id) || id <= 0) {
       return NextResponse.json({ error: "Invalid subscriber ID" }, { status: 400 });
