@@ -13,10 +13,10 @@ function validateId(id: string) {
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } } // ✅ Fix: Correctly typing params
+  context: { params: { id: string } } // ✅ Fix: Using `context` explicitly
 ) {
   try {
-    const id = validateId(params.id);
+    const id = validateId(context.params.id);
     const body = await request.json();
 
     if (!body.email || typeof body.email !== 'string') {
@@ -36,10 +36,10 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } } // ✅ Fix: Correctly typing params
+  context: { params: { id: string } } // ✅ Fix: Using `context` explicitly
 ) {
   try {
-    const id = validateId(params.id);
+    const id = validateId(context.params.id);
 
     await db.delete(subscribers).where(eq(subscribers.id, id));
 
