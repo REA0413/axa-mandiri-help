@@ -6,8 +6,10 @@ export async function GET() {
   try {
     const allSubscribers = await db.select().from(subscribers);
     return NextResponse.json(allSubscribers);
-  } catch (err) {
-    console.error('Fetch error:', err);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error('Fetch error:', error.message);
+    }
     return NextResponse.json({ error: 'Failed to fetch subscribers' }, { status: 500 });
   }
 } 

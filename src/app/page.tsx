@@ -6,6 +6,10 @@ import Image from 'next/image';
 import { translations, TranslationType } from '@/config/languages';
 import toast from 'react-hot-toast';
 
+interface SubscriptionError extends Error {
+  message: string;
+}
+
 export default function Home() {
   const [language, setLanguage] = useState<'en' | 'id'>('en');
   const [priceData, setPriceData] = useState<{ price: number; timestamp: string } | null>(null);
@@ -64,14 +68,15 @@ export default function Home() {
       setEmail('');
     } catch (error: unknown) {
       if (error instanceof Error) {
-        if (error.message === 'Email already subscribed') {
+        const subscriptionError = error as SubscriptionError;
+        if (subscriptionError.message === 'Email already subscribed') {
           toast.error('This email is already subscribed');
-        } else if (error.message.includes('invalid')) {
+        } else if (subscriptionError.message.includes('invalid')) {
           toast.error('Please enter a valid email address');
         } else {
           toast.error('Failed to subscribe. Please try again later.');
         }
-        console.error('Subscription error:', error);
+        console.error('Subscription error:', subscriptionError.message);
       }
     }
   };
