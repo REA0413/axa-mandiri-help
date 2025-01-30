@@ -3,23 +3,19 @@ import { db } from '@/db/config';
 import { subscribers } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 
-// Validate and parse the ID
-function validateId(id: string) {
-  const parsedId = parseInt(id, 10);
-  if (isNaN(parsedId) || parsedId <= 0) {
-    throw new Error('Invalid subscriber ID');
-  }
-  return parsedId;
-}
+type RouteContext = { params: { id: string } }; // ✅ Explicitly defining type
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: Record<string, string> } // ✅ Use Record<string, string> for compatibility
+  context: Pick<RouteContext, 'params'>
 ) {
   try {
-    const id = validateId(params.id);
-    const body = await request.json();
+    const id = parseInt(context.params.id, 10);
+    if (isNaN(id) || id <= 0) {
+      return NextResponse.json({ error: 'Invalid subscriber ID' }, { status: 400 });
+    }
 
+    const body = await request.json();
     if (!body.email || typeof body.email !== 'string') {
       return NextResponse.json({ error: 'Invalid email' }, { status: 400 });
     }
@@ -37,10 +33,13 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Record<string, string> } // ✅ Use Record<string, string> for compatibility
+  context: Pick<RouteContext, 'params'>
 ) {
   try {
-    const id = validateId(params.id);
+    const id = parseInt(context.params.id, 10);
+    if (isNaN(id) || id <= 0) {
+      return NextResponse.json({ error: 'Invalid subscriber ID' }, { status: 400 });
+    }
 
     await db.delete(subscribers).where(eq(subscribers.id, id));
 
