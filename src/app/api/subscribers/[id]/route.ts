@@ -3,9 +3,17 @@ import { db } from "@/db/config";
 import { subscribers } from "@/db/schema";
 import { eq } from "drizzle-orm";
 
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+// Define RouteContext type explicitly for Next.js 15
+interface RouteContext {
+  params: { id: string };
+}
+
+// PUT request handler
+export async function PUT(request: NextRequest, context: RouteContext) {
   try {
+    const { params } = context;
     const id = parseInt(params.id, 10);
+
     if (isNaN(id) || id <= 0) {
       return NextResponse.json({ error: "Invalid subscriber ID" }, { status: 400 });
     }
@@ -24,9 +32,12 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
   }
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+// DELETE request handler
+export async function DELETE(request: NextRequest, context: RouteContext) {
   try {
+    const { params } = context;
     const id = parseInt(params.id, 10);
+
     if (isNaN(id) || id <= 0) {
       return NextResponse.json({ error: "Invalid subscriber ID" }, { status: 400 });
     }
