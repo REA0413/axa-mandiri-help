@@ -3,15 +3,9 @@ import { db } from "@/db/config";
 import { subscribers } from "@/db/schema";
 import { eq } from "drizzle-orm";
 
-// Define RouteContext type explicitly for Next.js 15
-interface RouteContext {
-  params: { id: string };
-}
-
-// PUT request handler
-export async function PUT(request: NextRequest, context: RouteContext) {
+// Next.js 15+ expects RouteContext to explicitly match this structure
+export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const { params } = context;
     const id = parseInt(params.id, 10);
 
     if (isNaN(id) || id <= 0) {
@@ -32,10 +26,8 @@ export async function PUT(request: NextRequest, context: RouteContext) {
   }
 }
 
-// DELETE request handler
-export async function DELETE(request: NextRequest, context: RouteContext) {
+export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const { params } = context;
     const id = parseInt(params.id, 10);
 
     if (isNaN(id) || id <= 0) {
