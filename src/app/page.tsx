@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { translations, TranslationType } from '@/config/languages';
 import toast from 'react-hot-toast';
 
-interface SubscriptionError extends Error {
+interface SubscriptionError {
   message: string;
 }
 
