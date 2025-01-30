@@ -62,15 +62,17 @@ export default function Home() {
 
       toast.success('Successfully subscribed! You will receive daily price updates.');
       setEmail('');
-    } catch (error: any) {
-      if (error.message === 'Email already subscribed') {
-        toast.error('This email is already subscribed');
-      } else if (error.message.includes('invalid')) {
-        toast.error('Please enter a valid email address');
-      } else {
-        toast.error('Failed to subscribe. Please try again later.');
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        if (error.message === 'Email already subscribed') {
+          toast.error('This email is already subscribed');
+        } else if (error.message.includes('invalid')) {
+          toast.error('Please enter a valid email address');
+        } else {
+          toast.error('Failed to subscribe. Please try again later.');
+        }
+        console.error('Subscription error:', error);
       }
-      console.error('Subscription error:', error);
     }
   };
 

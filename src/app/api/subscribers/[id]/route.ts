@@ -14,7 +14,8 @@ export async function PUT(
       .where(eq(subscribers.id, parseInt(params.id)));
     
     return NextResponse.json({ message: 'Updated successfully' });
-  } catch (error) {
+  } catch (err) {
+    console.error('Update error:', err);
     return NextResponse.json({ error: 'Failed to update subscriber' }, { status: 500 });
   }
 }
@@ -28,7 +29,8 @@ export async function DELETE(
       .where(eq(subscribers.id, parseInt(params.id)));
     
     return NextResponse.json({ message: 'Deleted successfully' });
-  } catch (error) {
+  } catch (err) {
+    console.error('Delete error:', err);
     return NextResponse.json({ error: 'Failed to delete subscriber' }, { status: 500 });
   }
 } 
