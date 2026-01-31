@@ -14,7 +14,7 @@ def scrape_price():
             'p_p_mode': 'view',
             'p_p_resource_id': 'getChartData',
             'p_p_cacheability': 'cacheLevelPage',
-            '_NAV_Laporan_Widget_Portlet_INSTANCE_8J6RSFs2GFon_authToken': '5ck9jH9i'
+            '_NAV_Laporan_Widget_Portlet_INSTANCE_8J6RSFs2GFon_authToken': 'Nqx2KlqA'
         }
 
         data = {
