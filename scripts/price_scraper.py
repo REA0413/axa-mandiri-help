@@ -1,92 +1,96 @@
+import os
 import requests
 import json
-import re
 from datetime import datetime
 
 def scrape_price():
     url = "https://axa-mandiri.co.id/laporan-keuangan-detail"
+    
+    # 1. Get the token from GitHub Secrets (env variable)
+    # If not found, it defaults to your last known token
+    token = os.environ.get('AXA_TOKEN', 'Nqx2KlqA')
+    
+    # Use a session to maintain cookies during the request
     session = requests.Session()
     
-    # Headers to look like a real browser
     headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
-        'Referer': 'https://axa-mandiri.co.id/'
+        'Accept': '*/*',
+        'Accept-Language': 'en-GB,en;q=0.9',
+        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+        'Origin': 'https://axa-mandiri.co.id',
+        'Referer': url,
+        'X-Requested-With': 'XMLHttpRequest',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+    }
+
+    params = {
+        'p_p_id': 'NAV_Laporan_Widget_Portlet_INSTANCE_8J6RSFs2GFon',
+        'p_p_lifecycle': '2',
+        'p_p_state': 'normal',
+        'p_p_mode': 'view',
+        'p_p_resource_id': 'getChartData',
+        'p_p_cacheability': 'cacheLevelPage',
+        '_NAV_Laporan_Widget_Portlet_INSTANCE_8J6RSFs2GFon_authToken': token
+    }
+
+    data = {
+        '_NAV_Laporan_Widget_Portlet_INSTANCE_8J6RSFs2GFon_daysPeriod': '30',
+        '_NAV_Laporan_Widget_Portlet_INSTANCE_8J6RSFs2GFon_startDate': '',
+        '_NAV_Laporan_Widget_Portlet_INSTANCE_8J6RSFs2GFon_endDate': '',
+        '_NAV_Laporan_Widget_Portlet_INSTANCE_8J6RSFs2GFon_fundCode': 'Mandiri Attractive Equity Money Rupiah'
     }
 
     try:
-        print("Fetching page to find token...")
-        response = session.get(url, headers=headers)
+        print(f"Starting scrape attempt with token: {token}")
         
-        # Try multiple patterns to find the token
-        token_patterns = [
-            r'authToken["\']\s*[:=]\s*["\']([^"\']+)["\']',
-            r'p_p_auth["\']\s*[:=]\s*["\']([^"\']+)["\']',
-            r'v_auth["\']\s*[:=]\s*["\']([^"\']+)["\']'
-        ]
+        # Initial GET to establish session cookies
+        session.get(url, headers={'User-Agent': headers['User-Agent']})
         
-        token = None
-        for pattern in token_patterns:
-            match = re.search(pattern, response.text)
-            if match:
-                token = match.group(1)
-                break
+        # The POST request to fetch data
+        response = session.post(url, params=params, headers=headers, data=data)
+        response.raise_for_status()
+
+        # 2. Robust Data Parsing
+        raw_response = response.json()
         
-        if not token:
-            # Fallback: Check for common Liferay token names
-            print("Token not found in JS. Checking meta tags...")
-            token = session.cookies.get('LFR_SESSION_STATE_10162') # Example cookie token
+        # Check if the response is empty (which causes the 'index out of range' error)
+        if not raw_response or not isinstance(raw_response, list) or len(raw_response) == 0:
+            print("❌ Error: The server returned an empty list. The token is likely invalid or expired.")
+            return
 
-        if not token:
-            # Last resort: Use your manual token to see if it still works
-            token = "Nqx2KlqA" 
-            print(f"Auto-detection failed. Falling back to manual token: {token}")
-        else:
-            print(f"Found active token: {token}")
-
-        # Data request
-        params = {
-            'p_p_id': 'NAV_Laporan_Widget_Portlet_INSTANCE_8J6RSFs2GFon',
-            'p_p_lifecycle': '2',
-            'p_p_resource_id': 'getChartData',
-            '_NAV_Laporan_Widget_Portlet_INSTANCE_8J6RSFs2GFon_authToken': token
-        }
-
-        data = {
-            '_NAV_Laporan_Widget_Portlet_INSTANCE_8J6RSFs2GFon_daysPeriod': '7',
-            '_NAV_Laporan_Widget_Portlet_INSTANCE_8J6RSFs2GFon_fundCode': 'Mandiri Attractive Equity Money Rupiah'
-        }
-
-        api_resp = session.post(url, params=params, data=data, headers=headers)
+        data_list = raw_response[0]
         
-        # Process data (index [0] is often wrapped in another list)
-        raw_json = api_resp.json()
-        data_list = raw_json[0] if isinstance(raw_json[0], list) else raw_json
-
+        # Sort by date to get the most recent price
         sorted_data = sorted(
-            [item for item in data_list if item.get('fundCode') == 'ATRP'],
+            data_list,
             key=lambda x: datetime.strptime(x['navDate'], '%Y-%m-%d %H:%M:%S.%f'),
             reverse=True
         )
+        
+        # Look for the specific fund code
+        latest_price_entry = next(
+            (item for item in sorted_data if item['fundCode'] == 'ATRP'),
+            None
+        )
 
-        if sorted_data:
-            latest = sorted_data[0]
-            price_output = {
-                'price': float(latest['bidValue']),
-                'timestamp': latest['navDate']
+        if latest_price_entry:
+            price_data = {
+                'price': float(latest_price_entry['bidValue']),
+                'timestamp': latest_price_entry['navDate']
             }
             
+            # Ensure the public directory exists (handled in YAML, but safe to do here too)
+            os.makedirs('public', exist_ok=True)
+            
             with open('public/latest_price.json', 'w') as f:
-                json.dump(price_output, f)
-            print(f"Saved: {price_output}")
+                json.dump(price_data, f)
+                
+            print(f"✅ Successfully saved price: {price_data}")
         else:
-            print("No ATRP data found in response.")
+            print("⚠️ Success response received, but ATRP fund code was not found in the data.")
 
     except Exception as e:
-        print(f"Scraper Error: {e}")
-        # We exit with 0 here so the workflow doesn't 'fail' red, 
-        # but it won't push changes if it didn't find data.
-        exit(0) 
+        print(f"❌ Error scraping price: {str(e)}")
 
 if __name__ == "__main__":
     scrape_price()
