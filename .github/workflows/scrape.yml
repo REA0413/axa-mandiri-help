@@ -5,12 +5,11 @@ on:
     - cron: '0 8 * * *'  # 3 PM GMT+7
   workflow_dispatch:      # Allows manual trigger
 
-permissions:
-  contents: write        # Essential for pushing the updated JSON file
-
 jobs:
   scrape:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write    # Crucial for the push step
     steps:
       - uses: actions/checkout@v4
       
@@ -24,19 +23,18 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests pytz
 
-      - name: Run scraper and save to public directory
+      - name: Run scraper
         run: |
           mkdir -p public
           python scripts/price_scraper.py
           
       - name: Commit and push if changed
         run: |
-          git config --global user.name 'GitHub Action'
-          git config --global user.email 'action@github.com'
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           git add public/latest_price.json
-          # Only commit if there are differences to avoid unnecessary builds
           if git diff --staged --quiet; then
-            echo "No changes detected. Skipping push."
+            echo "No changes to commit"
           else
             git commit -m "Update price data: $(date +'%Y-%m-%d')"
             git push
