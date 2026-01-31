@@ -24,6 +24,8 @@ jobs:
           pip install requests pytz
 
       - name: Run scraper
+        env:
+          AXA_TOKEN: ${{ secrets.AXA_TOKEN }} # This passes the secret to Python
         run: |
           mkdir -p public
           python scripts/price_scraper.py
